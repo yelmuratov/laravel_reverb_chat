@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Message extends Model
 {
-    protected $fillable = ['content', 'file_path','image_path'];
+    protected $fillable = ['content', 'path_file', 'image_path'];
 }

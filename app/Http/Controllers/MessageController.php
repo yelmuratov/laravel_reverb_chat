@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MessageEvent;
 use App\Models\Message;
 use Illuminate\Http\Request;
 
@@ -12,8 +13,8 @@ class MessageController extends Controller
      */
     public function index()
     {
-        $messages = Message::all();
-        return view('messages.index', compact('messages'));
+        $chats = Message::all();
+        return view('welcome', compact('chats'));
     }
 
     /**
@@ -29,24 +30,26 @@ class MessageController extends Controller
      */
     public function store(Request $request)
     {
-        // content, file_path, image_path
-        // validate the file and image then save the file and image path to the database
         $request->validate([
             'content' => 'required',
-            'file_path' => 'required|file',
-            'image_path' => 'required|image',
+            'path_file' => 'nullable|file',
+            'image_path' => 'nullable|image',
         ]);
+        
+        // storage image and file
+        $path_file = $request->file('path_file') ? $request->file('path_file')->store('files', 'public') : null;
+        $image_path = $request->file('image_path') ? $request->file('image_path')->store('images', 'public') : null;
 
-        $file_path = $request->file('file_path')->store('files','public');
-        $image_path = $request->file('image_path')->store('images','public');
-
-        Message::create([
+        $message = Message::create([
             'content' => $request->content,
-            'file_path' => $file_path,
+            'path_file' => $path_file,
             'image_path' => $image_path,
         ]);
 
-        return redirect()->route('messages.index');
+        // broadcast event
+        broadcast(new MessageEvent($message));
+
+        return redirect()->back();
     }
 
     /**

@@ -1,10 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MessageController;
+use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::resource('messages', MessageController::class);
+Route::get('/', [MessageController::class, 'index'])->name('welcome');
+Route::post('/messages', [MessageController::class, 'store'])->name('chat.store');
