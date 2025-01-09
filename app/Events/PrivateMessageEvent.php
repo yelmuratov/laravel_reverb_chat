@@ -8,36 +8,28 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class MessageEvent implements ShouldBroadcast
+class PrivateMessageEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $message;
+    public $receiverId;
 
-    public function __construct($message)
+    public function __construct($message, $receiverId)
     {
         $this->message = $message;
+        $this->receiverId = $receiverId;
     }
 
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
-     */
     public function broadcastOn(): array
     {
         return [
-            new Channel('test'),
+            new Channel('private-chat.' . $this->receiverId),
         ];
     }
 
-    /**
-     * The data to broadcast.
-     *
-     * @return array
-     */
     public function broadcastWith(): array
-    {   
+    {
         return [
             'message' => $this->message,
             'path_file' => $this->message->path_file,
